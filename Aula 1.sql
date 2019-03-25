@@ -1,3 +1,5 @@
+USE MusicasBD
+GO
 --i. Mostrar todos os dados da tabela CD;
 SELECT * FROM CD
 --ii. Mostrar o título e a data de compra de todos os CD;
@@ -46,3 +48,23 @@ SELECT * FROM MUSICA WHERE TITULO LIKE '[BDH]%'
 SELECT * FROM CD WHERE LOCAL_COMPRA IS NULL
 -- xxiv. Mostrar todos os dados dos CD com o local de compra registado;
 SELECT * FROM CD WHERE LOCAL_COMPRA IS NOT NULL
+--b. Ordenações
+--i. Mostrar o título e a data de compra dos CD, por ordem alfabética do título do CD;
+SELECT TITULO,DATA_COMPRA FROM CD ORDER BY TITULO
+--ii. Mostrar o título e a data de compra dos CD, por ordem descendente da data de compra do CD;
+SELECT TITULO,DATA_COMPRA FROM CD ORDER BY DATA_COMPRA DESC
+--iii. Mostrar o título e o local de compra dos CD, por ordem ascendente do local de compra do CD;
+SELECT TITULO,LOCAL_COMPRA FROM CD ORDER BY LOCAL_COMPRA ASC
+--iv. Mostrar o resultado da alínea anterior, mas por ordem descendente do local de compra do CD;
+SELECT TITULO,LOCAL_COMPRA FROM CD ORDER BY LOCAL_COMPRA DESC
+-- v. Mostrar o título, o valor pago e o respetivo valor do IVA dos CD, por ordem decrescente do IVA;
+SELECT TITULO,VALOR_PAGO,VALOR_PAGO*0.23 AS 'Valor IVA' FROM CD ORDER BY 'Valor Iva' DESC
+-- vi. Mostrar o título do CD por ordem descendente da data de compra e, no caso da igualdade de datas, por ordem alfabética do título.
+SELECT TITULO FROM CD ORDER BY DATA_COMPRA DESC,TITULO ASC
+--c. Funções de agregação
+--i. Mostrar o título do CD e o título das músicas de todos os CD;
+SELECT CD.COD_CD,CD.TITULO,MUSICA.TITULO FROM CD,MUSICA WHERE CD.COD_CD=MUSICA.COD_CD
+--ii. Mostrar o título do CD e o título da música com o número 1 de cada CD;
+SELECT CD.COD_CD,CD.TITULO,MUSICA.TITULO FROM CD,MUSICA WHERE CD.COD_CD=MUSICA.COD_CD AND MUSICA.nr_musica=1
+--iii. Mostrar o número, o título e a duração, de todas as músicas do CD com o título Punkzilla
+SELECT MUSICA.NR_MUSICA,MUSICA.TITULO,MUSICA.DURACAO FROM CD,MUSICA WHERE CD.COD_CD=MUSICA.COD_CD AND CD.titulo='Punkzilla'
