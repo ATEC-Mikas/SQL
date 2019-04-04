@@ -13,21 +13,33 @@ SELECT id_editora FROM EDITORA WHERE NOT EXISTS (SELECT CD.COD_CD FROM CD WHERE 
 --6) Alterar o comando da alínea anterior, de modo a mostrar o resultado por ordem decrescente;
 SELECT id_editora FROM EDITORA WHERE NOT EXISTS (SELECT CD.COD_CD FROM CD WHERE CD.id_editora=Editora.ID_EDITORA) ORDER BY id_editora DESC
 --7) Mostrar apenas a quantidade de CD comprados por local de compra e o respetivo local de compra;  
-SELECT * FROM CD
 SELECT local_compra as 'Local compra' ,COUNT(*) as 'CD comprados' FROM CD GROUP BY LOCAL_COMPRA
 --8) Copiar e alterar o comando da alínea anterior, de forma a mostrar o resultado por ordem crescente da quantidade de CD comprados;  
 SELECT local_compra as 'Local compra' ,COUNT(*) as 'CD comprados' FROM CD GROUP BY LOCAL_COMPRA order by COUNT(*)
 --9) Copiar e alterar o comando da alínea anterior, de forma a não mostrar nulos; 
 SELECT ISNULL(local_compra,'Desconhecido') as 'Local compra' ,COUNT(*) as 'CD comprados' FROM CD GROUP BY LOCAL_COMPRA order by COUNT(*)
 --10) Copiar e alterar o comando da alínea anterior, de forma a mostrar também, para cada local de compra, o valor total pago e o maior valor pago; 
+SELECT ISNULL(local_compra,'Desconhecido') as 'Local compra' ,COUNT(*) as 'CD comprados', SUM(VALOR_PAGO) AS 'Valor total pago', MAX(VALOR_PAGO) AS 'Maior valor Pago' FROM CD GROUP BY LOCAL_COMPRA order by COUNT(*)
 --11) Mostrar, para cada CD e respetivos intérpretes, a quantidade de músicas do CD em que o intérprete participa. Além da quantidade referida, também deve ser apresentado o código do CD e o intérprete; 
+SELECT * FROM CD
+SELECT * FROM Musica
+SELECT DISTINCT CD.TITULO,MUSICA.INTERPRETE,(
+									SELECT COUNT(*) FROM MUSICA AS M2 WHERE M2.COD_CD = MUSICA.COD_CD AND M2.interprete = MUSICA.INTERPRETE GROUP BY M2.interprete
+											) FROM CD,MUSICA WHERE CD.COD_CD=MUSICA.COD_CD
 --12) Copiar e alterar o comando da alínea anterior, de modo a mostrar apenas, o código do CD e o intérprete; 
+SELECT CD.TITULO,MUSICA.INTERPRETE FROM CD,MUSICA WHERE CD.COD_CD=MUSICA.COD_CD
 --13) Copiar e alterar o comando da alínea anterior, de modo a mostrar apenas o intérprete; 
+SELECT MUSICA.INTERPRETE FROM CD,MUSICA WHERE CD.COD_CD=MUSICA.COD_CD
 --14) Mostrar a quantidade de CD comprados em cada local de compra; 
+SELECT local_compra as 'Local compra' ,COUNT(*) as 'CD comprados' FROM CD GROUP BY LOCAL_COMPRA
 --15) Alterar o comando da alínea anterior, de modo a mostrar apenas as quantidades superiores a 2; 
+SELECT local_compra as 'Local compra' ,COUNT(*) as 'CD comprados' FROM CD GROUP BY LOCAL_COMPRA HAVING COUNT(*)>2
 --16) Mostrar os locais de compra, cujo média do valor pago por CD é inferior a 10, juntamente com o respetivo total do valor pago;
---17) Mostrar o valor total pago nos locais de compra, cuja quantidade de CD comprados é inferior a 2. O local de compra também deve ser visualizado; 
+SELECT LOCAL_COMPRA,AVG(VALOR_PAGO) FROM CD GROUP BY LOCAL_COMPRA HAVING AVG(VALOR_PAGO)<10
+--17) Mostrar o valor total pago nos locais de compra, cuja quantidade de CD comprados é inferior a 2. O local de compra também deve ser visualizado;
+SELECT LOCAL_COMPRA,SUM(VALOR_PAGO) FROM CD GROUP BY LOCAL_COMPRA HAVING COUNT(*)<2
 --18) Mostrar o intérprete e o código do CD em que o intérprete participa apenas em 1 música. O resultado deve ser apresentado por ordem crescente do código do CD e, em caso de igualdade, por ordem alfabética do intérprete; 
+SELECT INTERPRETE FROM MUSICA WHERE EXISTS (SELECT CD.COD_CD FROM CD WHERE MUSICA.COD_CD=CD.COD_CD GROUP BY CD.COD_CD HAVING COUNT(interprete)=1) 
 --19) Copiar e alterar o comando da alínea anterior, de modo a mostrar apenas os intérpretes e sem duplicados; 
 --20) Copiar e alterar o comando da alínea anterior, de modo a mostrar apenas os intérpretes começados por E ou L; 
 --21) Mostrar, para cada CD, o título e a quantidade de músicas; 
