@@ -21,11 +21,15 @@ SELECT ISNULL(local_compra,'Desconhecido') as 'Local compra' ,COUNT(*) as 'CD co
 --10) Copiar e alterar o comando da alínea anterior, de forma a mostrar também, para cada local de compra, o valor total pago e o maior valor pago; 
 SELECT ISNULL(local_compra,'Desconhecido') as 'Local compra' ,COUNT(*) as 'CD comprados', SUM(VALOR_PAGO) AS 'Valor total pago', MAX(VALOR_PAGO) AS 'Maior valor Pago' FROM CD GROUP BY LOCAL_COMPRA order by COUNT(*)
 --11) Mostrar, para cada CD e respetivos intérpretes, a quantidade de músicas do CD em que o intérprete participa. Além da quantidade referida, também deve ser apresentado o código do CD e o intérprete; 
-SELECT * FROM CD
-SELECT * FROM Musica
 SELECT DISTINCT CD.TITULO,MUSICA.INTERPRETE,(
 									SELECT COUNT(*) FROM MUSICA AS M2 WHERE M2.COD_CD = MUSICA.COD_CD AND M2.interprete = MUSICA.INTERPRETE GROUP BY M2.interprete
-											) FROM CD,MUSICA WHERE CD.COD_CD=MUSICA.COD_CD
+											) as 'Musicas participadas' FROM CD,MUSICA WHERE CD.COD_CD=MUSICA.COD_CD
+
+select distinct CD.titulo,Musica.interprete,(
+												select distinct COUNT(*)
+												from musica m where m.cod_cd=CD.cod_cd and m.interprete=Musica.interprete
+												group by interprete,cod_cd) as 'Musicas Participadas'
+from CD join Musica on CD.cod_cd=Musica.cod_cd
 --12) Copiar e alterar o comando da alínea anterior, de modo a mostrar apenas, o código do CD e o intérprete; 
 SELECT CD.TITULO,MUSICA.INTERPRETE FROM CD,MUSICA WHERE CD.COD_CD=MUSICA.COD_CD
 --13) Copiar e alterar o comando da alínea anterior, de modo a mostrar apenas o intérprete; 
@@ -39,7 +43,23 @@ SELECT LOCAL_COMPRA,AVG(VALOR_PAGO) FROM CD GROUP BY LOCAL_COMPRA HAVING AVG(VAL
 --17) Mostrar o valor total pago nos locais de compra, cuja quantidade de CD comprados é inferior a 2. O local de compra também deve ser visualizado;
 SELECT LOCAL_COMPRA,SUM(VALOR_PAGO) FROM CD GROUP BY LOCAL_COMPRA HAVING COUNT(*)<2
 --18) Mostrar o intérprete e o código do CD em que o intérprete participa apenas em 1 música. O resultado deve ser apresentado por ordem crescente do código do CD e, em caso de igualdade, por ordem alfabética do intérprete; 
-select interprete,cd.cod_cd from cd,musica where cd.cod_cd=musica.cod_cd and (select count(*) from cd c, musica m where c.cod_cd=m.cod_cd and musica.interprete=m.interprete group by interprete) = 1
+--Minha
+select interprete,cod_cd from musica where (select count(*) from musica m where musica.interprete=m.interprete and musica.cod_cd=m.cod_cd group by interprete,cod_cd) = 1 order by cod_cd,interprete
+
+-- Professor
+select interprete,cod_cd
+from Musica
+where interprete in (
+	select interprete 
+	from Musica 
+	group by interprete 
+	having COUNT(*) = 1)
+order by cod_cd,interprete
+-- Correta
+select distinct interprete,cod_cd
+from musica
+group by interprete,cod_cd
+having COUNT(*)=1 order by cod_cd,interprete
 --19) Copiar e alterar o comando da alínea anterior, de modo a mostrar apenas os intérpretes e sem duplicados; 
 select DISTINCT interprete from cd,musica where cd.cod_cd=musica.cod_cd and (select count(*) from cd c, musica m where c.cod_cd=m.cod_cd and musica.interprete=m.interprete group by interprete) = 1
 --20) Copiar e alterar o comando da alínea anterior, de modo a mostrar apenas os intérpretes começados por E ou L; 
@@ -49,8 +69,15 @@ select cd.titulo,(select count(*) from musica where cd.cod_cd=musica.cod_cd) fro
 --22) Mostrar, para cada CD, o código, o título e a quantidade de músicas; 
 select cd.cod_cd,cd.titulo,(select count(*) from musica where cd.cod_cd=musica.cod_cd) from cd
 --23) Mostrar, para cada CD, o código, o título e a quantidade de músicas cuja duração de pelo menos uma das músicas seja superior a 5; 
-select cd.cod_cd,cd.titulo,(select count(*) from musica where cd.cod_cd=musica.cod_cd and musica.duracao>5) from cd
+select cd.cod_cd,cd.titulo,(select count(*) from musica where cd.cod_cd=musica.cod_cd) from cd where 
+(select count(*) from musica where cd.cod_cd=musica.cod_cd and musica.duracao>5) > 0
+
+select CD.cod_cd,CD.titulo,COUNT(*) as 'musicas'
+from CD join Musica on CD.cod_cd=Musica.cod_cd
+where cd.cod_cd in(select cod_cd from Musica group by cod_cd having MAX(duracao)>5)
+group by CD.cod_cd,CD.titulo
 --24) Mostrar, para cada CD com menos de 6 músicas, o código, o título e a quantidade de músicas do CD; 
 select cd.cod_cd,cd.titulo,(select count(*) from musica where cd.cod_cd=musica.cod_cd) from cd where (select count(*) from musica where cd.cod_cd=musica.cod_cd) < 6
 --25) Mostrar, para cada CD cujas músicas têm uma duração média superior a 4, o código, o título e a quantidade de músicas do CD;
 select cd.cod_cd,cd.titulo,(select count(*) from musica where cd.cod_cd=musica.cod_cd) from cd where exists (select * from musica m where cd.cod_cd=m.cod_cd group by m.cod_cd having avg(m.duracao)>4)
+select cod_cd from musica m  group by m.cod_cd having avg(m.duracao)>4
