@@ -13,7 +13,7 @@ create table Cliente (
 	nr_identificacao_civil integer
 	constraint ck_cliente_nic check(nr_identificacao_civil >= 100000),
 	nif integer constraint uk_cliente_nif unique 
---	constraint nn_cliente_nif not null
+	constraint nn_cliente_nif not null
 	constraint ck_cliente_nif check(nif between 100000000 and 999999999),
 	data_nascimento date constraint nn_cliente_data not null,
 )
@@ -45,7 +45,8 @@ create table Revisao(
 	matricula varchar(8) references Automovel(matricula),
 	data_hora_marcacao datetime default getdate(),
 	efetuada varchar(1) default 'N'
-	constraint ck_revisao_efetuada check(efetuada like '[SN]'),
+	constraint ck_revisao_efetuada check(efetuada like '[SN]')
+	constraint nn_revisao_efetuada not null,
 	constraint pk_revisao_matricula_data_horamarcacao primary key (matricula,data_hora_marcacao)
 )
 go
@@ -69,8 +70,6 @@ insert into Automovel values
 	('83-QD-27','BMW',2100,2014,35600),
 	('XO-65-98','Toyota',2100,2010,15940)
 go
-
-select * from Cliente
 
 insert into Cliente(Nome,nr_identificacao_civil,nif,data_nascimento) values 
 	('Sérgio Conceição',987345,105098124,'1974-11-15'),
