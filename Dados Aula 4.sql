@@ -1,3 +1,5 @@
+use master 
+go
 create database  campeonato2
 go
 use campeonato2
@@ -8,13 +10,15 @@ go
 create table Cliente (
 	id_cliente integer identity(1,1) constraint pk_cliente_id_cliente primary key,
 	nome varchar(100) constraint nn_cliente_nome not null,
-	nr_identificacao_civil integer constraint uk_cliente_nic unique
-	constraint ck_cliente_nic check((nr_identificacao_civil >= 100000 ) or nr_identificacao_civil=null),
+	nr_identificacao_civil integer
+	constraint ck_cliente_nic check(nr_identificacao_civil >= 100000),
 	nif integer constraint uk_cliente_nif unique 
 --	constraint nn_cliente_nif not null
 	constraint ck_cliente_nif check(nif between 100000000 and 999999999),
-	data_nascimento date constraint nn_cliente_data not null
+	data_nascimento date constraint nn_cliente_data not null,
 )
+go
+CREATE UNIQUE NONCLUSTERED INDEX idx_yourcolumn_notnull ON Cliente(nr_identificacao_civil) WHERE nr_identificacao_civil IS NOT NULL;
 go
 
 --Criar Automovel
@@ -28,7 +32,10 @@ create table Automovel(
 	constraint ck_automovel_ano_fabrico check(ano_fabrico between 1900 and year(getdate())),
 	preco_venda decimal(9,2) 
 	constraint ck_automovel_preco_venda check(preco_venda>=0),
-	constraint ck_automovel_matricula check (matricula like '/([A-Z]{2}-[0-9]{2}-[0-9]{2})|([0-9]{2}-[A-Z]{2}-[0-9]{2})|([0-9]{2}-[0-9]{2}-[A-Z]{2})/g')
+	constraint ck_automovel_matricula check (
+		matricula like '[A-Z][A-Z]-[0-9][0-9]-[0-9][0-9]' or
+		matricula like '[0-9][0-9]-[A-Z][A-Z]-[0-9][0-9]' or
+		matricula like '[0-9][0-9]-[0-9][0-9]-[A-Z][A-Z]')
 )
 go
 
@@ -63,10 +70,12 @@ insert into Automovel values
 	('XO-65-98','Toyota',2100,2010,15940)
 go
 
+select * from Cliente
+
 insert into Cliente(Nome,nr_identificacao_civil,nif,data_nascimento) values 
 	('Sérgio Conceição',987345,105098124,'1974-11-15'),
 	('António Oliveira',937587,104052455,'1952-10-06'),
-	('Fernando Santos',null,10200906,'1954-10-10'),
+	('Fernando Santos',null,102000906,'1954-10-10'),
 	('Artur Jorge',7098428,100829087,'1946-02-13'),
 	('Jesualdo Ferreira',null,107559969,'1946-05-24')
 go
@@ -81,10 +90,11 @@ insert into automovel_cliente values
 go
 
 insert into Revisao values 
-	('65-87-GR','20181004 09:00','N'),
-	('83-QD-27','20181111 14:45', 'N'),
-	('42-90-AS','20181023, 10:50','N'),
-	('XO-65-98','20181201, 18:30','N'),
-	('65-87-GR','20180607, 10:50','S'),
-	('XO-65-98','20161122, 12:20','S')
+	('65-87-GR','2018-10-04 09:00','N'),
+	('83-QD-27','2018-11-11 14:45', 'N'),
+	('42-90-AS','2018-10-23 10:50','N'),
+	('XO-65-98','2018-12-01 18:30','N'),
+	('65-87-GR','2018-06-07 10:50','S'),
+	('XO-65-98','2016-11-22 12:20','S')
 go
+
